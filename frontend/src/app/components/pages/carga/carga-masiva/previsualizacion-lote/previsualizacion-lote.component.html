@@ -1,0 +1,94 @@
+@let v = validacion();
+<p class="resumen-lote">
+  <b>{{ v.archivo }}</b> · {{ v.total }} filas · <b>{{ v.correctas }} correctas</b> ·
+  <b>{{ v.errores }} con errores</b> (no se cargan) · <b>{{ v.avisos }} con avisos</b> (se cargan).
+  Nada se guarda hasta confirmar.
+</p>
+
+<mat-checkbox [checked]="soloProblemas()" (change)="alternarSoloProblemas($event.checked)">
+  Mostrar solo las filas con errores o avisos
+</mat-checkbox>
+
+<div class="tabla-wrap">
+  <table class="tabla tabla-compacta">
+    <thead>
+      <tr>
+        <th class="c">Fila</th>
+        <th>Colegio</th>
+        <th>Nombre</th>
+        <th>Matrícula</th>
+        <th class="c">Comienzo</th>
+        <th>Tipo de licencia</th>
+        <th class="c">Días háb.</th>
+        <th>Resultado</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (f of pagina().items; track f.fila) {
+        <tr>
+          <td class="c">{{ f.fila }}</td>
+          <td>{{ f.colegio || '—' }}</td>
+          <td>
+            {{ f.apellidoNombre || '—' }}
+            @if (f.tipoProfesional) {
+              <small class="lote">{{ profesional(f.tipoProfesional) }}</small>
+            }
+          </td>
+          <td class="mono">{{ f.matricula || '—' }}</td>
+          <td class="c">{{ (f.fechaComienzo | fechaAr) || '—' }}</td>
+          <td class="col-tipo">
+            {{ f.tipo || '—' }}
+            @if (f.observacion) {
+              <small class="obs" [title]="f.observacion">{{ f.observacion }}</small>
+            }
+          </td>
+          <td class="c">{{ f.diasHabiles ?? '—' }}</td>
+          <td [class]="claseFila(f)">
+            @if (f.resultado === 'ok') {
+              ✔ correcta
+            } @else {
+              {{ f.resultado === 'error' ? '✖' : '▲' }} {{ f.mensajes[0] }}
+              @if (f.mensajes.length > 1) {
+                <span class="hint" [title]="f.mensajes.join(' | ')"
+                  >(+{{ f.mensajes.length - 1 }})</span
+                >
+              }
+            }
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="8" class="vacio">No hay filas con problemas.</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+@let p = pagina();
+<mat-paginator
+  [length]="p.total"
+  [pageIndex]="p.page - 1"
+  [pageSize]="p.size"
+  [pageSizeOptions]="[10, 25, 50]"
+  (page)="cambiarPagina($event)"
+/>
+
+<div class="acciones acciones-derecha">
+  <button mat-stroked-button type="button" (click)="cancelar.emit()" [disabled]="confirmando()">
+    Cancelar
+  </button>
+  @if (v.errores) {
+    <button mat-stroked-button type="button" (click)="descargarReporte()">
+      Descargar reporte de errores
+    </button>
+  }
+  <button
+    mat-flat-button
+    type="button"
+    [disabled]="aCargar() === 0 || confirmando()"
+    (click)="confirmar.emit(v.token)"
+  >
+    {{ confirmando() ? 'Cargando…' : 'Confirmar carga (' + aCargar() + ' filas)' }}
+  </button>
+</div>

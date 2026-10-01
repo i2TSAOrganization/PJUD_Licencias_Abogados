@@ -1,0 +1,52 @@
+@if (error()) {
+  <p class="alerta alerta-error" role="alert">{{ error() }}</p>
+}
+
+@if (lotes(); as ls) {
+  @if (ls.total) {
+    <h3 class="subtitulo">Lotes cargados</h3>
+    <table class="tabla tabla-compacta">
+      <thead>
+        <tr>
+          <th>Lote</th>
+          <th>Archivo</th>
+          <th class="c">Licencias</th>
+          <th>Estado</th>
+          <th><span class="sr-only">Acciones</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (l of ls.items; track l.id) {
+          <tr>
+            <td class="mono">{{ l.numero }}</td>
+            <td>{{ l.archivo }}</td>
+            <td class="c">{{ l.cantidad }}</td>
+            <td>
+              @if (l.revertido) {
+                <span class="chip chip-anulada">Revertido</span>
+              } @else {
+                Cargado
+              }
+            </td>
+            <td class="acciones-fila">
+              @if (!l.revertido) {
+                <button mat-stroked-button type="button" class="btn-chico" (click)="revertir(l)">
+                  Revertir lote
+                </button>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    @if (ls.pages > 1) {
+      <mat-paginator
+        [length]="ls.total"
+        [pageIndex]="ls.page - 1"
+        [pageSize]="ls.size"
+        [hidePageSize]="true"
+        (page)="cambiarPagina($event)"
+      />
+    }
+  }
+}

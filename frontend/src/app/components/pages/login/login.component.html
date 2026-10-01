@@ -1,0 +1,60 @@
+<section class="card card-angosta">
+  <h1>Carga de licencias</h1>
+  <p class="sub">Acceso solo para el contenidista.</p>
+
+  @if (error()) {
+    <p class="alerta alerta-error" role="alert">{{ error() }}</p>
+  }
+
+  @if (paso() === 'credenciales') {
+    <form [formGroup]="credenciales" (ngSubmit)="enviarCredenciales()" class="columna">
+      <mat-form-field>
+        <mat-label>Usuario</mat-label>
+        <input matInput formControlName="usuario" autocomplete="username" required />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Contraseña</mat-label>
+        <input
+          matInput
+          type="password"
+          formControlName="password"
+          autocomplete="current-password"
+          required
+        />
+      </mat-form-field>
+      <div class="acciones acciones-derecha">
+        <button mat-flat-button type="submit" [disabled]="credenciales.invalid || enviando()">
+          {{ enviando() ? 'Ingresando…' : 'Ingresar' }}
+        </button>
+      </div>
+    </form>
+  } @else {
+    <form [formGroup]="codigo" (ngSubmit)="enviarCodigo()" class="columna">
+      <p>
+        Enviamos un código de un solo uso a <strong>{{ destino() }}</strong
+        >.
+      </p>
+      <mat-form-field>
+        <mat-label>Código</mat-label>
+        <input
+          matInput
+          formControlName="codigo"
+          inputmode="numeric"
+          autocomplete="one-time-code"
+          maxlength="8"
+          required
+        />
+      </mat-form-field>
+      <div class="acciones">
+        <button mat-button type="button" (click)="cambiarUsuario()">Cambiar usuario</button>
+        <span class="espacio"></span>
+        <button mat-stroked-button type="button" (click)="reenviar()" [disabled]="enviando()">
+          Pedir otro código
+        </button>
+        <button mat-flat-button type="submit" [disabled]="codigo.invalid || enviando()">
+          {{ enviando() ? 'Verificando…' : 'Ingresar' }}
+        </button>
+      </div>
+    </form>
+  }
+</section>

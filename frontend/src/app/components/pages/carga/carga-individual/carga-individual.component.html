@@ -1,0 +1,139 @@
+<form [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+  <div class="grid-3">
+    <mat-form-field>
+      <mat-label>Nombre</mat-label>
+      <input
+        matInput
+        formControlName="nombre"
+        placeholder="Completar nombre"
+        maxlength="60"
+        required
+      />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Apellido</mat-label>
+      <input
+        matInput
+        formControlName="apellido"
+        placeholder="Completar apellido"
+        maxlength="60"
+        required
+      />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Matrícula</mat-label>
+      <input
+        matInput
+        formControlName="matricula"
+        placeholder="Completar matrícula"
+        maxlength="40"
+        required
+      />
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Tipo de profesional</mat-label>
+      <mat-select formControlName="tipoProfesional" placeholder="Seleccionar" required>
+        @for (p of profesionales; track p.valor) {
+          <mat-option [value]="p.valor">{{ p.nombre }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Colegio / circunscripción</mat-label>
+      <mat-select formControlName="colegioId" placeholder="Seleccionar" required>
+        @for (c of colegios(); track c.id) {
+          <mat-option [value]="c.id">{{ c.circunscripcion }}ª · {{ c.nombre }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Fecha de comienzo</mat-label>
+      <input
+        matInput
+        [matDatepicker]="dpComienzo"
+        formControlName="fechaComienzo"
+        [min]="minComienzo()"
+        placeholder="DD/MM/AAAA"
+        required
+      />
+      <mat-datepicker-toggle matIconSuffix [for]="dpComienzo" />
+      <mat-datepicker #dpComienzo />
+      <!-- «obligatoria» ya figura en «Falta completar»; acá solo los errores propios de la fecha -->
+      @if (!form.controls.fechaComienzo.hasError('required')) {
+        <mat-error>{{ mensajeFecha(form.controls.fechaComienzo.errors) }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Tipo de licencia</mat-label>
+      <mat-select formControlName="tipoLicenciaId" placeholder="Seleccionar" required>
+        @for (t of tipos(); track t.id) {
+          <mat-option [value]="t.id">{{ t.nombre }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Cantidad de días hábiles</mat-label>
+      <input
+        matInput
+        type="number"
+        min="1"
+        step="1"
+        formControlName="diasHabiles"
+        [placeholder]="tipoSeleccionado() ? 'Cantidad' : 'Según el tipo'"
+        [required]="diasAMano()"
+      />
+      @if (tipoSeleccionado() && !diasAMano()) {
+        <mat-hint>Lo define el tipo de licencia.</mat-hint>
+      }
+    </mat-form-field>
+  </div>
+
+  <mat-form-field class="ancho-total">
+    <mat-label>Observación · sin datos de salud</mat-label>
+    <textarea
+      matInput
+      formControlName="observacion"
+      rows="2"
+      maxlength="255"
+      [required]="diasAMano()"
+      [placeholder]="diasAMano() ? 'Describir el tipo' : 'Opcional'"
+    ></textarea>
+    <mat-hint align="end">{{ form.controls.observacion.value.length }} / 255</mat-hint>
+  </mat-form-field>
+
+  @if (control()?.repetida; as r) {
+    <p class="alerta alerta-aviso">
+      ▲ Ya existe una licencia de {{ r.apellidoNombre }} con esa matrícula y esa fecha de comienzo
+      ({{ r.diasHabiles }} días hábiles). Verifique que no sea una carga repetida.
+    </p>
+  }
+  @if (control()?.tope; as t) {
+    <p class="alerta" [class.alerta-aviso]="!t.bloquea" [class.alerta-error]="t.bloquea">
+      {{ t.bloquea ? '✖' : '▲' }} Tope anual superado: con esta licencia serían {{ t.total }} de
+      {{ t.maximo }} días hábiles de «{{ t.tipoNombre }}» en {{ t.anio }}.
+      {{ t.bloquea ? 'No se carga.' : 'Se carga igual: verifique con el Colegio.' }}
+    </p>
+  }
+  @if (error()) {
+    <p class="alerta alerta-error" role="alert">{{ error() }}</p>
+  }
+
+  <div class="pie-form">
+    <div class="msgs">
+      @if (intentado() && faltantes().length) {
+        <div>✖ Falta completar: {{ faltantes().join(', ') }}.</div>
+      }
+      @if (intentado() && diasInvalidos()) {
+        <div>✖ La cantidad de días hábiles debe ser un número entero mayor que cero.</div>
+      }
+    </div>
+    <div class="acciones">
+      <button mat-stroked-button type="button" (click)="cancelar()">Cancelar</button>
+      <button mat-flat-button type="submit" [disabled]="guardando() || topeBloquea()">
+        {{ guardando() ? 'Guardando…' : editar() ? 'Guardar corrección' : 'Guardar' }}
+      </button>
+    </div>
+  </div>
+</form>

@@ -1,0 +1,69 @@
+<section class="card">
+  <h1>Consulta de licencias</h1>
+  <p class="sub">
+    Licencias especiales de abogados y procuradores comunicadas por los Colegios de cada
+    circunscripción.
+  </p>
+
+  <app-filtros-licencias
+    [colegios]="colegios()"
+    (buscar)="lista.buscar($event)"
+    (exportar)="exportar()"
+  />
+
+  @if (lista.error()) {
+    <p class="alerta alerta-error" role="alert">{{ lista.error() }}</p>
+  }
+
+  @let p = lista.pagina();
+  @if (p && !p.total) {
+    <div class="vacio">
+      No hay licencias que coincidan con los filtros. Solo figuran las que los Colegios comunicaron
+      y el Poder Judicial cargó.
+    </div>
+  } @else if (p) {
+    <div class="tabla-wrap" [class.cargando]="lista.cargando()" [attr.aria-busy]="lista.cargando()">
+      <table
+        class="tabla"
+        matSort
+        matSortDisableClear
+        [matSortActive]="lista.orden().campo"
+        [matSortDirection]="lista.orden().dir"
+        (matSortChange)="lista.ordenar($event)"
+      >
+        <thead>
+          <tr>
+            <th mat-sort-header="colegio">Colegio / circunscripción</th>
+            <th mat-sort-header="nombre">Nombre</th>
+            <th mat-sort-header="matricula">Matrícula</th>
+            <th mat-sort-header="tipoProfesional">Tipo de profesional</th>
+            <th mat-sort-header="fechaComienzo" class="c">Fecha de comienzo</th>
+            <th mat-sort-header="diasHabiles" class="c">Cantidad de días hábiles</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (l of p.items; track l.id) {
+            <tr>
+              <td>{{ l.colegio.circunscripcion }}ª · {{ l.colegio.nombre }}</td>
+              <td>{{ l.apellidoNombre }}</td>
+              <td>{{ l.matricula }}</td>
+              <td>{{ profesional(l.tipoProfesional) }}</td>
+              <td class="c">{{ l.fechaComienzo | fechaAr }}</td>
+              <td class="c">{{ l.diasHabiles }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <mat-paginator
+      [length]="p.total"
+      [pageIndex]="p.page - 1"
+      [pageSize]="p.size"
+      [pageSizeOptions]="[10, 25, 50]"
+      [showFirstLastButtons]="true"
+      (page)="lista.cambiarPagina($event)"
+    />
+  } @else {
+    <div class="vacio centro">Cargando…</div>
+  }
+</section>

@@ -1,0 +1,95 @@
+<section class="paso">
+  <p>
+    <b>1. Planilla.</b> Descárguela, complete una fila por licencia (máximo 500) y súbala en el paso
+    2.
+  </p>
+  <table class="tabla tabla-compacta tabla-tipos">
+    <thead>
+      <tr>
+        <th>Tipo de licencia</th>
+        <th class="c">Días hábiles</th>
+        <th class="c">Máximo por año</th>
+        <th class="c">Observación</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (t of tipos(); track t.id) {
+        <tr>
+          <td>{{ t.nombre }}</td>
+          <td class="c">{{ t.diasHabiles ?? 'a mano' }}</td>
+          <td class="c">
+            @if (t.maximoAnual !== null) {
+              {{ t.maximoAnual }} días · {{ t.bloqueaTope ? 'no se carga' : 'se avisa' }}
+            } @else {
+              sin máximo
+            }
+          </td>
+          <td class="c">{{ t.diasHabiles === null ? 'obligatoria' : 'opcional' }}</td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="4" class="vacio">No hay tipos de licencia cargados.</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+  <div class="centrado">
+    <button mat-stroked-button type="button" (click)="descargarPlantilla()">
+      Descargar planilla
+    </button>
+  </div>
+</section>
+
+<section class="paso">
+  <p><b>2. Archivo.</b> Súbalo para revisarlo antes de cargar.</p>
+  <div class="acciones">
+    <input
+      type="file"
+      accept=".xlsx,.csv"
+      (change)="elegirArchivo($event)"
+      aria-label="Archivo a cargar"
+    />
+    <span class="espacio"></span>
+    <button
+      mat-flat-button
+      type="button"
+      [disabled]="!archivo() || validando()"
+      (click)="validar()"
+    >
+      {{ validando() ? 'Validando…' : 'Validar archivo' }}
+    </button>
+  </div>
+</section>
+
+@if (error()) {
+  <p class="alerta alerta-error" role="alert">✖ {{ error() }}</p>
+}
+
+@if (resultado(); as r) {
+  <p class="resumen-lote">
+    <b>Lote {{ r.lote.numero }}</b> cargado: {{ r.cargadas }} licencias ({{ r.conErrores }} filas
+    con errores no se cargaron). Ya se ven en la consulta libre.
+  </p>
+  @if (r.omitidas.length) {
+    <div class="alerta alerta-aviso">
+      Al confirmar se omitieron {{ r.omitidas.length }} filas porque ya no entraban en el máximo
+      anual:
+      <ul>
+        @for (o of r.omitidas; track o.fila) {
+          <li>Fila {{ o.fila }}: {{ o.mensaje }}</li>
+        }
+      </ul>
+    </div>
+  }
+}
+
+@if (validacion(); as v) {
+  <app-previsualizacion-lote
+    [validacion]="v"
+    [confirmando]="confirmando()"
+    (confirmar)="confirmar($event)"
+    (cancelar)="cancelar()"
+  />
+}
+
+<app-lotes-cargados [refrescar]="refrescarLotes()" (cambio)="cambio.emit($event)" />

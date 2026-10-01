@@ -1,0 +1,90 @@
+// Colores de la maqueta v13 y tema de Angular Material (M3).
+@use '@angular/material' as mat;
+
+:root {
+  --verde: #0d5b49;
+  --verde-osc: #0a4a3b;
+  --verde-claro: #e3efeb;
+  --fondo: #f2f4f3;
+  --superficie: #ffffff;
+  --texto: #1e2a27;
+  --texto-sec: #5d6b67;
+  --borde: #d5dcd9;
+  --rojo: #b3261e;
+  --rojo-bg: #fbe4e2;
+  --aviso: #8a5a00;
+  --aviso-bg: #fdf3d8;
+  --radio: 6px;
+}
+
+html {
+  color-scheme: light;
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$green-palette,
+        tertiary: mat.$cyan-palette,
+      ),
+      typography: (
+        plain-family: (
+          'Segoe UI',
+          Roboto,
+          Helvetica,
+          Arial,
+          sans-serif,
+        ),
+        brand-family: (
+          'Segoe UI',
+          Roboto,
+          Helvetica,
+          Arial,
+          sans-serif,
+        ),
+      ),
+      density: -1,
+    )
+  );
+  // Campos de 40 px de alto, como los de la maqueta
+  @include mat.form-field-density(-4);
+  @include mat.select-density(-4);
+  --mat-form-field-container-text-size: 14px;
+  --mat-form-field-outlined-label-text-size: 14px;
+  --mat-select-trigger-text-size: 14px;
+  --mat-option-label-text-size: 14px;
+  --mat-form-field-outlined-input-text-placeholder-color: #8a9591;
+  --mat-select-placeholder-text-color: #8a9591;
+  --mat-sys-primary: #0d5b49;
+  --mat-sys-on-primary: #ffffff;
+  --mat-sys-error: #b3261e;
+  // Botones rectos (radio 4 px) como en la maqueta
+  --mat-button-filled-container-shape: 4px;
+  --mat-button-outlined-container-shape: 4px;
+  --mat-button-outlined-outline-color: #0d5b49;
+  --mat-button-filled-label-text-weight: 600;
+  --mat-button-outlined-label-text-weight: 600;
+  // Diálogos
+  --mat-dialog-container-shape: 10px;
+  --mat-dialog-container-color: #ffffff;
+  --mat-dialog-headline-color: #0d5b49;
+  // Encabezados de tabla ordenables, en blanco sobre verde
+  --mat-sort-arrow-color: #ffffff;
+}
+
+// El input de fecha nativo es más alto que el resto: se iguala
+.mat-mdc-form-field input[type='date'] {
+  height: 24px;
+  padding: 0;
+}
+
+// Snackbar: solo dos, verde (success) y rojo (error), con texto blanco
+.success-snackbar,
+.error-snackbar {
+  --mat-snack-bar-supporting-text-color: #ffffff;
+  --mat-snack-bar-button-color: #ffffff;
+}
+.success-snackbar {
+  --mat-snack-bar-container-color: #0d5b49;
+}
+.error-snackbar {
+  --mat-snack-bar-container-color: #b3261e;
+}

@@ -1,0 +1,29 @@
+<header class="barra">
+  <div class="barra-in">
+    <a routerLink="/consulta" title="Ir a la consulta">
+      <img
+        class="logo"
+        src="assets/images/logo-poder-judicial.png"
+        alt="Poder Judicial de la Provincia de Santa Fe"
+      />
+    </a>
+    <div class="derecha">
+      @if (enConsulta()) {
+        <a mat-stroked-button routerLink="/carga">Carga de licencias</a>
+      } @else {
+        @if (loginOmitido) {
+          <span class="chip-local" title="env.local.json: omitir_login"
+            >Modo local · sin ingreso</span
+          >
+        }
+        @if (auth.usuario(); as u) {
+          <span class="usuario">
+            {{ u.nombre }} ·
+            <button type="button" class="salir" (click)="salir()">Salir</button>
+          </span>
+        }
+        <a mat-stroked-button routerLink="/consulta">Volver a la consulta</a>
+      }
+    </div>
+  </div>
+</header>

@@ -1,0 +1,57 @@
+<form class="filtros" [formGroup]="form" (ngSubmit)="aplicar()">
+  <div class="grid-3">
+    <mat-form-field>
+      <mat-label>Nombre</mat-label>
+      <input matInput formControlName="nombre" placeholder="Buscar por nombre" maxlength="120" />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Matrícula</mat-label>
+      <input matInput formControlName="matricula" placeholder="Buscar matrícula" maxlength="40" />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Tipo de profesional</mat-label>
+      <mat-select formControlName="tipoProfesional">
+        <mat-option value="">Todos</mat-option>
+        @for (p of profesionales; track p.valor) {
+          <mat-option [value]="p.valor">{{ p.nombre }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Colegio / circunscripción</mat-label>
+      <mat-select formControlName="colegioId">
+        <mat-option value="">Todos</mat-option>
+        @for (c of colegios(); track c.id) {
+          <mat-option [value]="'' + c.id">{{ c.circunscripcion }}ª · {{ c.nombre }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Fecha de comienzo</mat-label>
+      <input matInput [matDatepicker]="dpFecha" formControlName="fecha" placeholder="DD/MM/AAAA" />
+      <mat-datepicker-toggle matIconSuffix [for]="dpFecha" />
+      <mat-datepicker #dpFecha />
+      <mat-error>{{ mensajeFecha(form.controls.fecha.errors) }}</mat-error>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Días hábiles</mat-label>
+      <input
+        matInput
+        type="number"
+        min="1"
+        step="1"
+        formControlName="dias"
+        placeholder="Cantidad"
+      />
+      <mat-error>Debe ser un número entero mayor que cero.</mat-error>
+    </mat-form-field>
+  </div>
+
+  <div class="acciones">
+    <button mat-stroked-button type="button" (click)="exportar.emit()">Exportar PDF</button>
+    <span class="espacio"></span>
+    <button mat-stroked-button type="button" (click)="limpiar()">Limpiar filtros</button>
+    <button mat-flat-button type="submit" [disabled]="form.invalid">Buscar</button>
+  </div>
+</form>

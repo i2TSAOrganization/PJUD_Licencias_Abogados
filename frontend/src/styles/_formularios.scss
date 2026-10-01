@@ -1,0 +1,89 @@
+// Filtros, formulario de carga, pasos de la carga masiva y diálogos.
+
+/** Caja de filtros: dos filas de tres y los botones abajo. */
+.filtros {
+  padding: 16px;
+  background: #f7f9f8;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  margin-bottom: 16px;
+  .acciones {
+    margin-top: 12px;
+  }
+}
+
+/** 3 columnas del mismo ancho (filtros y formulario de carga). */
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
+  .mat-mdc-form-field {
+    width: 100%;
+  }
+}
+.ancho-total {
+  width: 100%;
+  margin-top: 12px;
+}
+
+/** Pie del formulario: mensajes a la izquierda, botones a la derecha. */
+.pie-form {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 12px;
+  .msgs {
+    flex: 1;
+    font-size: 12.5px;
+    line-height: 1.35;
+    color: #8a1f1f;
+  }
+  .acciones {
+    margin: 0;
+  }
+}
+
+/** Pasos de la carga masiva. */
+.paso {
+  border: 1px solid var(--borde);
+  border-radius: 5px;
+  padding: 14px 16px;
+  margin: 0 0 12px;
+  background: #fafbfa;
+  p {
+    margin: 0;
+  }
+  b {
+    color: var(--verde);
+  }
+  input[type='file'] {
+    max-width: 340px;
+  }
+}
+
+.btn-chico {
+  --mat-button-outlined-container-height: 28px;
+  --mat-button-outlined-label-text-size: 12px;
+}
+
+/** Ventana de Alta: las pestañas no deben generar barra horizontal. */
+.alta-dialog .mat-mdc-tab-body-content {
+  overflow: hidden;
+}
+
+@media (max-width: 860px) {
+  .grid-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 520px) {
+  .grid-3 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pie-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

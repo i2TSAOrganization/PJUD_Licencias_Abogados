@@ -1,0 +1,53 @@
+.barra {
+  background: #fff;
+  border-bottom: 1px solid var(--borde);
+}
+
+.barra-in {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.logo {
+  height: 76px;
+  width: auto;
+  display: block;
+}
+
+.derecha {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--texto-sec);
+}
+
+.salir {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: var(--verde);
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.chip-local {
+  background: #fff3c4;
+  color: #6b4e00;
+  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+}
+
+@media (max-width: 520px) {
+  .logo {
+    height: 46px;
+  }
+}

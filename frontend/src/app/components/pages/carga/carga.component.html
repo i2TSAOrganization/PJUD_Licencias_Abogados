@@ -1,0 +1,33 @@
+<section class="card">
+  <div class="titulo">
+    <div>
+      <h1>Gestión de licencias</h1>
+      <p class="sub">Busque una licencia para corregirla o anularla, o cargue nuevas con Alta.</p>
+    </div>
+    <button mat-flat-button type="button" (click)="alta()">+ Alta</button>
+  </div>
+
+  <app-filtros-licencias
+    [colegios]="colegios()"
+    (buscar)="lista.buscar($event)"
+    (exportar)="exportar()"
+  />
+
+  @if (lista.error()) {
+    <p class="alerta alerta-error" role="alert">{{ lista.error() }}</p>
+  }
+
+  @if (lista.pagina(); as p) {
+    <app-tabla-gestion
+      [pagina]="p"
+      [orden]="lista.orden()"
+      [cargando]="lista.cargando()"
+      (ordenar)="lista.ordenar($event)"
+      (cambiarPagina)="lista.cambiarPagina($event)"
+      (corregir)="corregir($event)"
+      (anular)="anular($event)"
+    />
+  } @else {
+    <div class="vacio centro">Cargando…</div>
+  }
+</section>

@@ -1,0 +1,132 @@
+// Tablas de consulta, gestión y carga masiva.
+
+.tabla-wrap {
+  overflow-x: auto;
+  &.cargando .tabla {
+    opacity: 0.45;
+  }
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  th {
+    background: var(--verde);
+    color: #fff;
+    text-align: left;
+    padding: 9px 8px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  td {
+    padding: 9px 8px;
+    border-bottom: 1px solid var(--borde);
+    vertical-align: middle;
+  }
+  .c {
+    text-align: center;
+  }
+  // Encabezado ordenable centrado (fecha y días)
+  th.c .mat-sort-header-container {
+    justify-content: center;
+  }
+  .vacio {
+    text-align: center;
+  }
+  .obs {
+    display: block;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--texto-sec);
+    font-size: 13px;
+  }
+}
+
+.tabla-compacta {
+  font-size: 13px;
+  td,
+  th {
+    padding: 6px 10px;
+  }
+}
+.tabla-tipos {
+  margin: 14px auto 0;
+  max-width: 720px;
+}
+
+.col-tipo {
+  font-size: 13px;
+}
+.lote {
+  display: block;
+  font-size: 11.5px;
+  color: var(--texto-sec);
+}
+.mono {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 12.5px;
+}
+.hint {
+  font-size: 12px;
+  color: var(--texto-sec);
+}
+
+.acciones-fila {
+  white-space: nowrap;
+  text-align: right;
+  .mat-mdc-icon-button {
+    color: var(--verde);
+  }
+  .ico-borrar:hover {
+    color: var(--rojo);
+  }
+}
+
+// Anuladas: gris y el nombre tachado
+.fila-anulada td {
+  color: #8a9591;
+}
+.fila-anulada .tachable {
+  text-decoration: line-through;
+}
+
+.chip {
+  display: inline-block;
+  padding: 1px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.chip-anulada {
+  background: var(--rojo-bg);
+  color: var(--rojo);
+}
+
+// Resultado de cada fila de la carga masiva
+.res-ok {
+  color: #1b5e20;
+}
+.res-aviso {
+  color: #6b4200;
+  background: #fff9e8;
+}
+.res-error {
+  color: #7a1a12;
+  background: #fdf0ee;
+}
+
+.pie {
+  font-size: 13px;
+  color: var(--texto-sec);
+  margin: 10px 0 0;
+}
+
+// Paginador: como el de la maqueta, sin fondo
+.mat-mdc-paginator {
+  --mat-paginator-container-background-color: transparent;
+  --mat-paginator-container-text-size: 12.5px;
+  --mat-paginator-container-text-color: var(--texto-sec);
+}
