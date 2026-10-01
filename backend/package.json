@@ -10,8 +10,9 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "test": "node --test test/",
-    "db:verificar": "node scripts/verificar-db.js"
+    "test": "node --test \"test/**/*.test.js\"",
+    "db:verificar": "node scripts/verificar-db.js",
+    "usuario:crear": "node scripts/crear-usuario.js"
   },
   "author": "i2T",
   "license": "UNLICENSED",
