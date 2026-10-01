@@ -131,7 +131,7 @@ Angular 22.2 · Angular Material 22 · TypeScript 6 · RxJS 7.8 · date-fns 4 ·
 
 API REST que consume el front. Se sirve detrás de Apache en `/api` y escucha solo en `127.0.0.1:3000`, así que no hace falta CORS (front y API comparten origen).
 
-> **Estado:** esqueleto. Ya están la configuración, las utilidades, los modelos y la conexión a la base (`npm run db:verificar`). Falta la Etapa 0 (`app.js`, `server.js`, middlewares y rutas); hasta entonces `npm start` y `npm run dev` no levantan la API.
+> **Estado:** Etapa 0 terminada. La API levanta, tiene la seguridad (sesión, CSRF, cabeceras, límite de uso) y las **18 rutas montadas**, con validaciones y documentación. Funcionan `GET /api/salud` y `GET /api/colegios`; las demás responden **501** hasta que su dueño las implemente (ver [API](#api)).
 
 ## Requisitos
 
@@ -175,10 +175,21 @@ cd PJUD_Licencias_Abogados/backend
 npm ci
 cp .env.example .env        # y completar (ver abajo)
 npm run db:verificar        # prueba la conexión y la base
-npm run dev                 # disponible al terminar la Etapa 0
+npm test                    # pruebas (no usan la base)
+npm run dev                 # http://127.0.0.1:3000 · documentación en /api-docs
 ```
 
 `npm run db:verificar` tiene que mostrar: conexión `utf8mb4`, modo estricto activo, 5 Colegios, 3 tipos y **DELETE denegado**. Lo que inserta para probar queda en una transacción que se deshace.
+
+**Usuario contenidista** para ingresar (no hay pantalla de usuarios en esta versión):
+
+```bash
+npm run usuario:crear -- <usuario> <email> "<Nombre y apellido>"
+```
+
+La contraseña se pide por consola sin mostrarla (mínimo 10 caracteres) y se guarda con bcrypt.
+
+**Con el front:** desde `frontend/`, `npm start` levanta `http://localhost:4200` y su proxy manda `/api` a `127.0.0.1:3000`. Para usar el login real, `omitir_login` en `false` en `env.local.json`.
 
 ## Configuración (`backend/.env`)
 
@@ -212,21 +223,34 @@ Desde `backend/`:
 |---|---|
 | `npm run dev` | API con recarga automática (`node --watch`) |
 | `npm start` | API sin recarga (la que usa el servicio en el servidor) |
-| `npm test` | Pruebas (`node --test` + supertest) |
+| `npm test` | Pruebas (`node --test` + supertest). No usan la base: toman `test/fixtures/test.env` |
 | `npm run db:verificar` | Verifica conexión, modo estricto, datos iniciales y permisos de la base |
+| `npm run usuario:crear -- <usuario> <email> "<Nombre>"` | Crea un contenidista (pide la contraseña por consola) |
 
 ## API
 
 Prefijo `/api`, JSON, fechas `AAAA-MM-DD`. Documentación navegable en `/api-docs` (Swagger), fuera de producción.
 
-| Área | Rutas | Acceso |
-|---|---|---|
-| Públicas | `GET /salud`, `GET /config`, `GET /colegios`, `GET /licencias` | Libre (con límite de uso) |
-| Ingreso | `POST /auth/login`, `POST /auth/otp`, `POST /auth/logout` | Libre / sesión |
-| Gestión | `GET /carga/tipos`, `GET /carga/licencias` (+ `/existe`, `/tope`), `POST /carga/licencias`, `PATCH /carga/licencias/:id`, `POST /carga/licencias/:id/anular` | Contenidista |
-| Carga masiva | `GET /carga/plantilla`, `POST /carga/lotes/validar`, `GET /carga/lotes`, `GET /carga/lotes/:id/filas`, `GET /carga/lotes/:id/reporte-errores`, `POST /carga/lotes/:id/confirmar`, `POST /carga/lotes/:id/revertir` | Contenidista + `CARGA_MASIVA=on` |
+**El contrato es el del front:** las rutas, los campos y las respuestas siguen `frontend/src/app/interfaces/` (y los `TODO(back)` de `frontend/src/app/services/`). Si se cambia uno, se cambia el otro.
 
-- **Listas:** `{ items, total, page, size, pages }`. 10 por página por defecto, máximo 100. Si `page` se pasa, devuelve la última.
+| Ruta | Acceso | Estado |
+|---|---|---|
+| `GET /api/salud` | Libre (monitoreo) | Hecho |
+| `GET /api/colegios` | Libre | Hecho |
+| `GET /api/licencias` | Libre, con límite de uso | Pendiente |
+| `GET /api/auth/yo` | Sesión | Pendiente |
+| `POST /api/auth/login` · `POST /api/auth/otp` | Libre, con límite de intentos | Pendiente |
+| `POST /api/auth/logout` | Libre (idempotente) | Pendiente |
+| `GET /api/carga/tipos-licencia` | Contenidista | Pendiente |
+| `GET /api/carga/licencias` | Contenidista | Pendiente |
+| `GET /api/carga/licencias/control` | Contenidista | Pendiente |
+| `POST /api/carga/licencias` · `PATCH /api/carga/licencias/:id` | Contenidista | Pendiente |
+| `POST /api/carga/licencias/:id/anular` | Contenidista | Pendiente |
+| `GET /api/carga/plantilla` | Contenidista + `CARGA_MASIVA=on` | Pendiente |
+| `POST /api/carga/lotes/validar` · `POST /api/carga/lotes/:token/confirmar` | Contenidista + `CARGA_MASIVA=on` | Pendiente |
+| `GET /api/carga/lotes` · `POST /api/carga/lotes/:id/revertir` | Contenidista + `CARGA_MASIVA=on` | Pendiente |
+
+- **Listas:** `{ items, total, page, size, pages }`. 10 por página por defecto, máximo 100. Si `page` se pasa, devuelve la última. Filtros: `nombre`, `matricula`, `tipoProfesional` (A/P), `colegioId`, `fecha`, `dias`. Orden: `sort` (`colegio`, `nombre`, `matricula`, `tipoProfesional`, `fechaComienzo`, `diasHabiles`; `tipoLicencia` solo en Gestión) y `dir` (`asc`/`desc`).
 - **Errores:** siempre `{ "statusCode": 400, "message": ["…"], "error": "Solicitud inválida" }`, en español. Códigos: 400, 401, 403, 404, 409, 413, 422 (tope anual que bloquea) y 429.
 - **Datos públicos:** las rutas públicas **nunca** devuelven el tipo de licencia, la observación ni las anuladas. Eso es solo de `/api/carga/*`.
 
@@ -234,7 +258,7 @@ Prefijo `/api`, JSON, fechas `AAAA-MM-DD`. Documentación navegable en `/api-doc
 
 - **Ingreso:** contraseña con bcrypt y código OTP de 6 dígitos por correo, con vencimiento e intentos limitados.
 - **Sesión:** tabla `sesion` y cookie HttpOnly (`SameSite=Lax`, `Secure` fuera de local) con un JWT que solo lleva el id de la sesión. Vence a los 30 minutos sin uso. Salir la cierra en la base, así que una cookie copiada deja de servir.
-- **CSRF:** el back emite la cookie `XSRF-TOKEN` y valida el header `X-XSRF-TOKEN` que manda el front en los pedidos que modifican datos (pendiente, Etapa 0).
+- **CSRF:** el back emite la cookie `XSRF-TOKEN` (no HttpOnly) y en POST, PATCH, PUT y DELETE exige el header `X-XSRF-TOKEN` con el mismo valor; si no, 403. Para probar con curl o Postman: primero un GET (para recibir la cookie) y después mandar la cookie y el header.
 - **Base:** el usuario de la aplicación no puede borrar. Anular y revertir son UPDATE: nada se borra.
 - **Cabeceras de seguridad**, límite de uso por IP, validación estricta de parámetros (los campos de más dan 400) y orden de columnas con lista cerrada (nunca se arma SQL con texto del usuario).
 
@@ -254,21 +278,22 @@ Sigue la de `CAS_Gestion_Usuarios_API`:
 
 ```
 backend/
-├─ app.js · server.js        app Express / listen en 127.0.0.1 (Etapa 0)
+├─ app.js · server.js        app Express (sin listen, la usan los tests) / listen en 127.0.0.1
 ├─ sequelize.js              conexión (utf8mb4 + modo estricto) y asociaciones
+├─ swagger.js                documentación; los esquemas copian las interfaces del front
 ├─ resources/configurations/config.js   única fuente de configuración (.env)
 ├─ models/                   colegio, tipo_licencia, usuario, sesion, licencia, lote_carga, lote_carga_fila
-├─ routes/                   rutas, validaciones (express-validator) y documentación Swagger
-├─ businessLayer/<modulo>/   lógica de cada área (auth, tipos, licencias, lotes)
-├─ businessLayer/utils/      errores, validar, paginacion, texto, redes, rateLimiters, mailer
-├─ middleware-security/      cabeceras, acceso a /api-docs, sesión y rol, interruptor de carga masiva
-├─ monitoreo/                salud y métricas Prometheus
-├─ scripts/                  verificar-db (y herramientas de desarrollo)
-└─ test/                     node --test + supertest
+├─ routes/                   rutas, validaciones (validaciones.js) y documentación Swagger
+├─ businessLayer/<modulo>/   lógica de cada área (colegios, auth, tipos, licencias, lotes)
+├─ businessLayer/utils/      errores, manejadorErrores, validar, paginacion, texto, redes, rateLimiters, mailer
+├─ middleware-security/      cabeceras, csrf, sesion (requireSesion/requireRol), api-docs-auth, cargaMasiva
+├─ monitoreo/                salud (GET /api/salud) y métricas Prometheus
+├─ scripts/                  verificar-db, crear-usuario
+└─ test/                     node --test + supertest (fixtures/test.env: sin base)
 db/                          scripts SQL (MySQL 5.7)
 ```
 
-**Patrón:** la ruta valida y llama a la función del `businessLayer`, que usa los modelos y responde. Los errores se lanzan con los helpers de `businessLayer/utils/errores.js` y los atrapa un manejador único.
+**Patrón:** la ruta valida y llama a la función del `businessLayer`, que usa los modelos y responde. Los errores se lanzan con los helpers de `businessLayer/utils/errores.js` y los atrapa un manejador único (en Express 5 no hace falta `try/catch`). Ejemplo de referencia: `routes/colegios.js` → `businessLayer/colegios/colegios.js`.
 
 ## Stack (back)
 
